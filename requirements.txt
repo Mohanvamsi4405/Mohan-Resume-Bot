@@ -21,3 +21,6 @@ python-docx==0.8.11
 
 # Token counting / OpenAI utils
 tiktoken==0.4.0
+
+# MongoDB
+pymongo==4.5.0
