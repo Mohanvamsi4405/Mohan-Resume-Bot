@@ -1,49 +1,37 @@
 import os
 import streamlit as st
 from dotenv import load_dotenv
+from pymongo import MongoClient
 import faiss
 from langchain_community.vectorstores import FAISS
 from langchain.docstore.document import Document
 from langchain.chains import RetrievalQA
 from langchain.embeddings.base import Embeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
-import google.generativeai as genai
-from pymongo import MongoClient
-from datetime import datetime
-import os
-os.environ["GRPC_VERBOSITY"] = "ERROR"
-os.environ["GRPC_TRACE"] = ""
-# =========================
-# Streamlit page config
-# =========================
-st.set_page_config(page_title="Ask About Mohan Vamsi", page_icon="🤖")
+import google.generativeai as genai  # Gemini SDK
 
 # =========================
-# Load API Key
+# Streamlit page config (MUST be first)
+# =========================
+st.set_page_config(page_title="RAGBot: Ask About Mohan", page_icon="🤖")
+
+# =========================
+# Load secrets / environment
 # =========================
 load_dotenv()
-api_key = os.getenv("GEMINI_API_KEY")
-if not api_key:
-    st.error("❌ GEMINI_API_KEY not found in .env file")
+API_KEY = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY")
+MONGO_URI = os.getenv("MONGO_URI") or st.secrets.get("MONGO_URI")
+
+if not API_KEY or not MONGO_URI:
+    st.error("❌ API key or MongoDB URI not found. Please set them in .env or Streamlit secrets.")
     st.stop()
 
+# MongoDB setup
+client = MongoClient(MONGO_URI)
+db = client["mohan_rag_db"]          # Database name
+collection = db["query_history"]     # Collection name
+
 INDEX_DIR = "mohan_faiss"
-
-# =========================
-# MongoDB Connection
-# =========================
-mongo_uri = "mongodb+srv://Mohan4405:8106710994@cluster0.vxxdmt0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-client = MongoClient(mongo_uri)
-db = client["mohan_app"]          # Database name
-qa_collection = db["qa_records"]  # Collection for storing Q&A
-
-def save_qa_to_mongo(question, answer):
-    """Save question and answer to MongoDB."""
-    qa_collection.insert_one({
-        "question": question,
-        "answer": answer,
-        "timestamp": datetime.utcnow()
-    })
 
 # =========================
 # Gemini Embeddings
@@ -51,7 +39,7 @@ def save_qa_to_mongo(question, answer):
 class GeminiEmbeddings(Embeddings):
     def __init__(self, model="models/embedding-001"):
         self.model = model
-        genai.configure(api_key=api_key)
+        genai.configure(api_key=API_KEY)
 
     def embed_documents(self, texts):
         embeddings = []
@@ -67,10 +55,9 @@ class GeminiEmbeddings(Embeddings):
         return self.embed_documents([text])[0]
 
 # =========================
-# Load or Create FAISS DB
+# Load or create FAISS vector store
 # =========================
-# Comment @st.cache_resource for hot reload during development
-# @st.cache_resource
+@st.cache_resource
 def load_vector_store():
     embeddings = GeminiEmbeddings()
     if os.path.exists(INDEX_DIR):
@@ -92,8 +79,7 @@ vector_store = load_vector_store()
 # =========================
 # Setup Gemini Chat LLM
 # =========================
-llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=api_key)
-
+llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=API_KEY)
 qa_chain = RetrievalQA.from_chain_type(
     llm=llm,
     retriever=vector_store.as_retriever(),
@@ -103,35 +89,35 @@ qa_chain = RetrievalQA.from_chain_type(
 # =========================
 # Streamlit UI
 # =========================
-st.title("🤖 Ask About Mohan Vamsi")
-st.write("This app lets you ask questions about Mohan Vamsi based on his story.")
+st.title("🤖 RAGBot: Ask About Mohan Vamsi")
+st.write("Ask questions about Mohan Vamsi. Your queries and answers are saved in the database.")
 
-# Session state for answer
-if "answer" not in st.session_state:
-    st.session_state.answer = ""
-
-query = st.text_input("🔍 Ask a question:")
+query = st.text_input("🔍 Type your question:")
 
 col1, col2 = st.columns([1,1])
-
 with col1:
-    if st.button("Submit"):
-        if query.strip() == "":
-            st.warning("Please enter a question before submitting.")
-        else:
-            with st.spinner("Thinking..."):
-                try:
-                    answer_dict = qa_chain.invoke(query)
-                    st.session_state.answer = answer_dict["result"]
-                    save_qa_to_mongo(query, st.session_state.answer)
-                except Exception as e:
-                    st.session_state.answer = f"⚠️ Error: {e}"
-
+    submit = st.button("Ask")
 with col2:
-    if st.button("Clear"):
-        st.session_state.answer = ""
-        query = ""
-        st.rerun()  # updated from experimental_rerun()
+    clear = st.button("Clear")
 
-if st.session_state.answer:
-    st.markdown(f"**💡 Answer:** {st.session_state.answer}")
+# Clear input/output
+if clear:
+    st.session_state['query'] = ""
+    st.experimental_rerun()
+
+# Handle query
+if submit and query:
+    with st.spinner("Thinking..."):
+        try:
+            # Get answer from RAG chain
+            answer_dict = qa_chain.invoke(query)
+            answer = answer_dict["result"]
+
+            st.markdown(f"**💡 Answer:** {answer}")
+
+            # Save Q&A to MongoDB
+            record = {"query": query, "answer": answer}
+            collection.insert_one(record)
+
+        except Exception as e:
+            st.error(f"⚠️ Error: {e}")
