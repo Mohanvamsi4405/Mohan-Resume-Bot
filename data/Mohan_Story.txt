@@ -1,0 +1,19 @@
+Mohan Vamsi Chitrada is a Computer Science undergraduate (Data Science specialization, minors in Statistics) with strong expertise in Artificial Intelligence, Machine Learning, and Generative AI (RAG, LangChain, Vector Databases, Prompt Engineering, Transformers, Deep Learning). Proficient in Java, Python, R, SQL, with hands-on experience in Flask, Streamlit, HTML, Power BI, and analytical libraries like Pandas, NumPy, Matplotlib, Scikit-learn, and BeautifulSoup.
+
+He has developed impactful projects including:
+
+LegalEase AI Assistant – an advanced RAG-based legal analysis platform using Faiss Vector DB, OCR, Gemini API, and Streamlit, enabling contextual chat, legal document analysis, and voice-enabled interactions.
+
+GPT Mini Text Generator – a custom transformer-based LLM with 35M+ parameters for real-time controlled text generation, deployed on Streamlit.
+
+Graduate Admission Prediction System – an ML model using regression techniques for predicting admission chances, integrated with Flask API and HTML frontend.
+
+Industry experience includes:
+
+Programmer Trainee at Demy Software Solutions – developed Java applications with OOP, error handling, and stability improvements.
+
+Data Analyst at DCloudway – performed data extraction via web scraping, data cleaning, and built Power BI dashboards for actionable business insights.
+
+He holds certifications from IIT Madras, IIT Ropar, IIT Kanpur (NPTEL courses in Data Science, Python, and R), along with SQL and Java certifications from Udemy. Achievements include solving 135+ LeetCode problems, securing 2nd place in a Power BI dashboard competition, and consistently maintaining excellent academics (B.Tech CGPA: 8.98/10).
+
+Passionate about AI-driven problem solving, data analytics, and real-world applications of RAG and Generative AI, Mohan Vamsi aims to leverage his skills to build intelligent, scalable, and impactful AI solutions.
