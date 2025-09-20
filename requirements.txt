@@ -1,23 +1,24 @@
 # Web app
 streamlit==1.36.0
-python-dotenv==1.0.0
+python-dotenv==1.0.1
 
-# LangChain (latest stable compatible)
-langchain==0.1.20
+# LangChain
+langchain==0.2.12
+langchain-google-genai==1.0.8
 
-# Vector database
-faiss-cpu==1.10.0
+# FAISS for vector database
+faiss-cpu==1.12.0
 
-# Google Gemini embeddings
-google-generativeai==0.0.9
+# Gemini embeddings
+google-generativeai==0.7.2
 
-# Data manipulation
-pandas==2.1.0
-numpy==1.25.0
-
-# Tokenization (if needed)
-tiktoken==0.4.0
+# Data processing
+pandas==2.3.2
+numpy==1.26.4
 
 # Optional document processing
 pdfplumber==0.9.0
 python-docx==0.8.12
+
+# Token counting
+tiktoken==0.4.0
