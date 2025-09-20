@@ -1,24 +1,23 @@
 # Web app
 streamlit==1.36.0
+rich==13.3.5
 python-dotenv==1.0.1
 
-# LangChain
+# LangChain + Gemini integration
 langchain==0.2.12
 langchain-google-genai==1.0.8
-
-# FAISS for vector database
-faiss-cpu==1.12.0
-
-# Gemini embeddings
 google-generativeai==0.7.2
+
+# FAISS for vector search
+faiss-cpu==1.12.0
 
 # Data processing
 pandas==2.3.2
 numpy==1.26.4
 
-# Optional document processing
+# Document processing
 pdfplumber==0.9.0
-python-docx==0.8.12
+python-docx==0.8.11
 
-# Token counting
+# Token counting / OpenAI utils
 tiktoken==0.4.0
